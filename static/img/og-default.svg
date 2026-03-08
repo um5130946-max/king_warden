@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#0D1324"/>
+  <rect x="60" y="60" width="1080" height="510" rx="32" fill="#141D33" stroke="#D4A84F" stroke-opacity="0.35"/>
+  <path d="M154 468C268 324 389 252 517 252C642 252 751 313 842 437" stroke="#D4A84F" stroke-opacity="0.35" stroke-width="3"/>
+  <circle cx="874" cy="208" r="78" fill="#D4A84F" fill-opacity="0.12"/>
+  <text x="120" y="190" fill="#F0C46A" font-family="Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="4">
+    INTERACTIVE FAN EXPERIENCE
+  </text>
+  <text x="120" y="286" fill="#F8F3E9" font-family="Arial, sans-serif" font-size="72" font-weight="700">
+    왕과 사는 남자
+  </text>
+  <text x="120" y="370" fill="#F8F3E9" font-family="Arial, sans-serif" font-size="52" font-weight="700">
+    충성도 테스트
+  </text>
+  <text x="120" y="446" fill="#C9C2B4" font-family="Arial, sans-serif" font-size="30">
+    당신은 공동체에서 끝까지 남는 사람인가요?
+  </text>
+</svg>

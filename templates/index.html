@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}왕과 사는 남자: 충성도 테스트{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Movie Worldview Test</span>
+      <h1>나는 왕을 지킬 것인가?</h1>
+      <p class="hero-description">
+        &lt;왕과 사는 남자&gt; 세계관 속에서
+        당신이 누구의 편에 설 사람인지 확인해보세요.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/test">충성도 테스트 시작</a>
+      </div>
+    </div>
+    <div class="panel hero-poster-panel">
+      <img
+        class="hero-poster"
+        src="{{ request.url_for('images', path='포스터.png') }}"
+        alt="왕과 사는 남자 포스터"
+      >
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}단종마마 웃기기 & 허접 호랑이 피하기 대작전{% endblock %}
+
+{% block content %}
+<section class="section section-tight">
+  <div class="container">
+    <div
+      class="game-shell"
+      id="loyal-game-page"
+      data-session-uuid="{{ session.session_uuid }}"
+      data-result-type="{{ session.result_type }}"
+    >
+      <div class="section-heading">
+        <span class="eyebrow">Smile Mission</span>
+        <h1>단종마마 웃기기 & 허접 호랑이 피하기 대작전</h1>
+        <p>{{ session.result_type }} 결과 뒤에 이어지는 보너스 미니게임입니다.</p>
+      </div>
+
+      <article class="panel game-panel">
+        <div class="game-rank-banner is-hidden" id="loyal-rank-banner"></div>
+
+        <div class="canvas-wrap canvas-wrap--wide">
+          <canvas id="loyal-canvas" width="1008" height="576"></canvas>
+
+          <div class="game-overlay is-hidden" id="ad-popup-overlay">
+            <div class="game-modal">
+              <h2>허접 호랑이의 방해!</h2>
+              <p>전하를 이대로 포기하시겠습니까?</p>
+              <button type="button" class="btn btn-primary" id="revive-button">
+                광고 보고 부활하기
+              </button>
+              <button type="button" class="btn btn-ghost" id="restart-button">
+                처음부터 다시 하기
+              </button>
+            </div>
+          </div>
+
+          <div class="game-overlay is-hidden" id="game-over-overlay">
+            <div class="game-modal game-modal--result">
+              <h2 id="game-over-title">게임 종료</h2>
+              <p id="game-over-description"></p>
+              <p class="game-over-rank" id="game-over-rank"></p>
+              <div class="game-actions game-actions--center">
+                <button type="button" class="btn btn-primary" id="play-again-button">다시 도전</button>
+                <a class="btn btn-ghost" href="/result/{{ session.session_uuid }}">결과로 돌아가기</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-status-row">
+          <div class="game-status-card">
+            <span id="loyal-score-label">현재 웃음 점수</span>
+            <strong id="loyal-live-score">0 / 100</strong>
+          </div>
+          <div class="game-status-card">
+            <span id="loyal-secondary-label">남은 시간</span>
+            <strong id="loyal-secondary-value">60초</strong>
+          </div>
+          <div class="game-status-card">
+            <span>현재 상태</span>
+            <strong id="loyal-event-title">대기 중</strong>
+          </div>
+          <div class="game-status-card">
+            <span>최종 결과</span>
+            <strong id="loyal-result-title">시작 버튼을 눌러주세요</strong>
+          </div>
+        </div>
+
+        <div class="smile-gauge-wrap">
+          <span>스마일 게이지</span>
+          <div class="smile-gauge">
+            <span id="smile-gauge-fill"></span>
+          </div>
+        </div>
+
+        <p class="game-result-copy" id="loyal-result-copy">
+          밥상 위 김치찌개를 눌러 단종마마를 웃게 만들고, 허접 호랑이의 방해를 막아보세요.
+        </p>
+
+        <div class="game-actions">
+          <button type="button" class="btn btn-primary" id="loyal-start-button">게임 시작</button>
+          <button type="button" class="btn btn-secondary is-hidden" id="loyal-retry-button">다시 도전</button>
+          <a class="btn btn-ghost" href="/result/{{ session.session_uuid }}">결과로 돌아가기</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ request.url_for('static', path='js/game_loyal.js') }}"></script>
+{% endblock %}

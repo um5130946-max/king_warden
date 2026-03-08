@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block title %}다슬기국 랭킹{% endblock %}
+
+{% block body_class %}godi-rank-page{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  .godi-rank-page .site-main {
+    padding: 0;
+    min-height: calc(100vh - 72px);
+    background: linear-gradient(135deg, #e8ddd0 0%, #d4c4b0 50%, #c9b89a 100%);
+    font-family: "Gowun Batang", "Noto Serif KR", serif;
+  }
+  .godi-rank-shell {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+  }
+  .godi-rank-title {
+    text-align: center;
+    color: #4a3525;
+    font-size: clamp(1.4rem, 4vw, 1.8rem);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .godi-rank-sub {
+    text-align: center;
+    color: #5c4535;
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+  }
+  .godi-rank-diff {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .godi-rank-diff-btn {
+    padding: 10px 20px;
+    border: 2px solid #8b7355;
+    border-radius: 10px;
+    background: rgba(255,250,240,0.8);
+    color: #4a3525;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .godi-rank-diff-btn:hover { background: rgba(212, 168, 79, 0.2); }
+  .godi-rank-diff-btn.active {
+    background: #8b7355;
+    color: #fffef9;
+    border-color: #6b5344;
+  }
+  .godi-rank-card {
+    background: linear-gradient(145deg, rgba(255,250,240,0.98) 0%, rgba(248,242,232,0.98) 100%);
+    border-radius: 20px;
+    border: 2px solid rgba(139, 115, 85, 0.4);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .godi-rank-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .godi-rank-table th {
+    padding: 16px 14px;
+    text-align: left;
+    font-weight: 700;
+    color: #4a3525;
+    background: rgba(139,115,85,0.1);
+    border-bottom: 2px solid rgba(139,115,85,0.3);
+  }
+  .godi-rank-table th:first-child { text-align: center; width: 64px; }
+  .godi-rank-table td {
+    padding: 14px;
+    color: #4a3525;
+    border-bottom: 1px solid rgba(139,115,85,0.15);
+  }
+  .godi-rank-table tr:last-child td { border-bottom: none; }
+  .godi-rank-table tr:hover td { background: rgba(139,115,85,0.04); }
+  .godi-rank-table td:first-child {
+    text-align: center;
+    font-weight: 700;
+    color: #8b7355;
+  }
+  .godi-rank-table .rank-1 { color: #a8843a; }
+  .godi-rank-table .rank-2 { color: #8b7355; }
+  .godi-rank-table .rank-3 { color: #6b5344; }
+  .godi-rank-empty {
+    padding: 48px 24px;
+    text-align: center;
+    color: #6b5b4a;
+    font-size: 1rem;
+  }
+  .godi-rank-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+  .godi-rank-back {
+    display: inline-block;
+    padding: 12px 24px;
+    border: 2px solid #8b7355;
+    border-radius: 10px;
+    background: rgba(255,250,240,0.9);
+    color: #4a3525;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .godi-rank-back:hover {
+    background: rgba(212, 168, 79, 0.2);
+  }
+  .godi-rank-total {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: #6b5b4a;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="godi-rank-shell">
+  <h1 class="godi-rank-title"><strong>다슬기국 랭킹</strong></h1>
+  <p class="godi-rank-sub">빠를수록 상위랭킹! 기록을 확인해 보시오.</p>
+
+  <div class="godi-rank-diff">
+    <button type="button" class="godi-rank-diff-btn active" data-diff="easy">쉬움</button>
+    <button type="button" class="godi-rank-diff-btn" data-diff="medium">중간</button>
+    <button type="button" class="godi-rank-diff-btn" data-diff="hard">어려움</button>
+  </div>
+
+  <div class="godi-rank-card">
+    <table class="godi-rank-table">
+      <thead>
+        <tr>
+          <th>순위</th>
+          <th>닉네임</th>
+          <th>기록</th>
+        </tr>
+      </thead>
+      <tbody id="godi-rank-body">
+        <tr><td colspan="3" class="godi-rank-empty">불러오는 중...</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="godi-rank-total" id="godi-rank-total"></p>
+  <div class="godi-rank-buttons">
+    {% set from_url = request.query_params.get("from") %}
+    {% if from_url and from_url.startswith("/game/godi/") %}
+    <a href="{{ from_url }}" class="godi-rank-back">뒤로 가기</a>
+    {% endif %}
+    <a href="/" class="godi-rank-back">처음으로</a>
+  </div>
+</div>
+
+<script>
+(function() {
+  const DIFF_NAMES = { easy: '쉬움', medium: '중간', hard: '어려움' };
+
+  function pad(n) {
+    return String(Math.floor(n)).padStart(2, '0');
+  }
+  function formatTime(ms) {
+    const m = ms / 60000;
+    const s = (ms % 60000) / 1000;
+    const cs = (ms % 1000) / 10;
+    return pad(m) + ':' + pad(s) + ':' + pad(cs);
+  }
+
+  const tbody = document.getElementById('godi-rank-body');
+  const totalEl = document.getElementById('godi-rank-total');
+  const diffBtns = document.querySelectorAll('.godi-rank-diff-btn');
+
+  let currentDiff = 'easy';
+
+  function render(items, total) {
+    if (items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" class="godi-rank-empty">아직 기록이 없습니다. 첫 번째 도전자가 되어 보시오!</td></tr>';
+    } else {
+      tbody.innerHTML = items.map(function(item) {
+        const rankClass = item.rank <= 3 ? 'rank-' + item.rank : '';
+        return '<tr><td class="' + rankClass + '">' + item.rank + '</td><td>' + escapeHtml(item.nickname) + '</td><td>' + formatTime(item.time_ms) + '</td></tr>';
+      }).join('');
+    }
+    totalEl.textContent = '총 ' + total + '명 참여';
+  }
+
+  function escapeHtml(s) {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  function fetchRank(diff) {
+    tbody.innerHTML = '<tr><td colspan="3" class="godi-rank-empty">불러오는 중...</td></tr>';
+    fetch('/api/godi/leaderboard?difficulty=' + encodeURIComponent(diff) + '&limit=100')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        render(data.items || [], data.total || 0);
+      })
+      .catch(function() {
+        tbody.innerHTML = '<tr><td colspan="3" class="godi-rank-empty">랭킹을 불러올 수 없습니다.</td></tr>';
+        totalEl.textContent = '';
+      });
+  }
+
+  diffBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const diff = btn.dataset.diff;
+      if (diff === currentDiff) return;
+      currentDiff = diff;
+      diffBtns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      fetchRank(diff);
+    });
+  });
+
+  fetchRank(currentDiff);
+})();
+</script>
+{% endblock %}

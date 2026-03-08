@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>다슬기국 빨리 먹기</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow-x: hidden;
+    }
+    body {
+      font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+      background: linear-gradient(135deg, #e8ddd0 0%, #d4c4b0 50%, #c9b89a 100%);
+      color: #3d2c1e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 96vw;
+      min-height: calc(100vh - 24px);
+      flex: 1;
+    }
+    .screen.active { display: flex; }
+    .main-title {
+      font-size: clamp(1.3rem, 4vw, 1.8rem);
+      font-weight: 700;
+      color: #4a3525;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .desc {
+      text-align: center;
+      line-height: 1.7;
+      color: #5c4535;
+      margin-bottom: 24px;
+      font-size: 1rem;
+    }
+    .panel {
+      background: rgba(255, 250, 240, 0.9);
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border: 1px solid rgba(139, 115, 85, 0.3);
+    }
+    .input-wrap {
+      margin-bottom: 20px;
+    }
+    .input-wrap label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #4a3525;
+    }
+    .input-wrap input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #8b7355;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: #fffef9;
+    }
+    .difficulty-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .diff-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 12px 16px;
+      border: 2px solid #8b7355;
+      border-radius: 10px;
+      background: rgba(255,250,240,0.8);
+      color: #4a3525;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .diff-btn:hover { background: rgba(212, 168, 79, 0.2); }
+    .diff-btn.active {
+      background: #8b7355;
+      color: #fffef9;
+      border-color: #6b5344;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary {
+      background: linear-gradient(180deg, #c9a855 0%, #a8843a 100%);
+      color: #fffef9;
+      box-shadow: 0 4px 12px rgba(139,115,85,0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(139,115,85,0.4);
+    }
+    .btn-secondary {
+      background: rgba(139,115,85,0.25);
+      color: #4a3525;
+      border: 2px solid #8b7355;
+    }
+    .btn-secondary:hover { background: rgba(139,115,85,0.35); }
+    .best-record {
+      margin-top: 20px;
+      padding: 12px;
+      background: rgba(139,115,85,0.1);
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #5c4535;
+    }
+    .game-shell {
+      position: relative;
+      width: 100%;
+      max-width: min(700px, 92vw);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
+    }
+    .hud {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 12px;
+      padding: 10px 16px;
+      background: rgba(255,250,240,0.9);
+      border-radius: 12px;
+      border: 1px solid rgba(139,115,85,0.25);
+      flex-shrink: 0;
+    }
+    .timer {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #4a3525;
+      font-variant-numeric: tabular-nums;
+    }
+    .bowl-wrap {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+    }
+    .bowl-img, .soup-img {
+      position: absolute;
+      max-width: min(700px, 90vw);
+      max-height: min(85vh, 520px);
+      width: auto;
+      height: auto;
+      pointer-events: none;
+    }
+    .soup-img {
+      pointer-events: auto;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.2s;
+    }
+    .soup-img:hover { transform: scale(1.02); }
+    .soup-img.clicked { transform: scale(1.05); }
+    .pop-text {
+      position: fixed;
+      pointer-events: none;
+      z-index: 999;
+      font-size: 18px;
+      color: #8b7355;
+      font-weight: 700;
+      animation: popFade 0.7s ease-out forwards;
+    }
+    @keyframes popFade {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.4) translateY(-30px); }
+    }
+    .countdown-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      font-size: clamp(4rem, 15vw, 8rem);
+      font-weight: 800;
+      color: #fffef9;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .countdown-overlay.hidden { display: none; }
+    .result-grade { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; color: #4a3525; }
+    .result-ment { line-height: 1.7; margin-bottom: 16px; color: #5c4535; }
+    .result-time { font-size: 1.2rem; color: #8b7355; margin-bottom: 16px; }
+    .result-best { color: #a8843a; font-weight: 700; margin-bottom: 20px; }
+    .result-hint { font-size: 0.9rem; color: #6b5b4a; margin-bottom: 8px; }
+    .result-link-btn {
+      display: block;
+      width: 100%;
+      padding: 14px 24px;
+      margin-bottom: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .result-link-btn.primary {
+      background: linear-gradient(180deg, #c9a855 0%, #a8843a 100%);
+      color: #fffef9;
+    }
+    .result-link-btn.secondary {
+      background: rgba(139,115,85,0.25);
+      color: #4a3525;
+      border: 2px solid #8b7355;
+    }
+    .result-link-btn:hover { transform: translateY(-2px); }
+    .btn-row { display: flex; gap: 12px; margin-top: 20px; }
+    .btn-row .btn { flex: 1; }
+    .effects-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1000;
+    }
+    .seal-effect {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%) scale(0);
+      font-size: clamp(80px, 20vw, 140px);
+      color: #d4a84f;
+      animation: sealStamp 0.6s ease-out forwards;
+    }
+    @keyframes sealStamp {
+      0% { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+      50% { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
+      100% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+    }
+    .petal {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #e8a0b0;
+      border-radius: 50%;
+      animation: petalFall 2s ease-in-out forwards;
+    }
+    @keyframes petalFall {
+      0% { opacity: 0; transform: translateY(0); }
+      20% { opacity: 0.8; }
+      100% { opacity: 0; transform: translateY(100vh); }
+    }
+    .paper-effect {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 120px;
+      background: #9a8b7a;
+      opacity: 0.7;
+      border-radius: 4px;
+      animation: paperShake 1.5s ease-in-out;
+    }
+    @keyframes paperShake {
+      0%,100% { transform: translateX(-50%) rotate(0deg); }
+      25% { transform: translateX(-50%) rotate(-3deg); }
+      75% { transform: translateX(-50%) rotate(3deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="startScreen" class="screen active">
+    <h1 class="main-title">다슬기국 빨리 먹기</h1>
+    <div class="panel">
+      <p class="desc">국물을 후룩후룩 마셔서 빈 그릇을 만들어 보세요.</p>
+      <div class="input-wrap">
+        <label for="nickname">닉네임</label>
+        <input type="text" id="nickname" placeholder="닉네임 입력" maxlength="20">
+      </div>
+      <div class="input-wrap">
+        <label for="age">나이(만)</label>
+        <input type="number" id="age" placeholder="나이 입력 (선택)" min="1" max="120" inputmode="numeric">
+      </div>
+      <div class="difficulty-row">
+        <button type="button" class="diff-btn" data-diff="easy">쉬움</button>
+        <button type="button" class="diff-btn" data-diff="medium">중간</button>
+        <button type="button" class="diff-btn" data-diff="hard">어려움</button>
+      </div>
+      <button type="button" class="btn btn-primary" id="startBtn">게임 시작</button>
+      <div class="best-record" id="bestRecord">최고 기록: -</div>
+    </div>
+  </div>
+
+  <div id="gameScreen" class="screen">
+    <h1 class="main-title">다슬기국 빨리 먹기</h1>
+    <div class="game-shell">
+      <div class="hud">
+        <span class="timer" id="timer">00:00:00</span>
+      </div>
+      <div class="bowl-wrap">
+        <img class="bowl-img" id="bowlImg" src="../images/game_bowl.png" alt="빈 그릇" onerror="console.error('Image load failed:', this.src)">
+        <img class="soup-img" id="soupImg" src="../images/game_soup.png" alt="국물" onerror="console.error('Image load failed:', this.src)">
+      </div>
+    </div>
+  </div>
+
+  <div id="resultScreen" class="screen">
+    <h1 class="main-title">결과</h1>
+    <div class="panel">
+      <div class="result-grade" id="resultGrade"></div>
+      <p class="result-ment" id="resultMent"></p>
+      <p class="result-time" id="resultTime"></p>
+      <p class="result-best" id="resultBest"></p>
+      <p class="result-hint" id="rankHint" style="font-weight:600;color:#8b7355;"></p>
+      <p class="result-hint" id="linkHint1"></p>
+      <a class="result-link-btn" id="linkBtn1" href="#" target="_blank" rel="noopener"></a>
+      <p class="result-hint" id="linkHint2"></p>
+      <a class="result-link-btn" id="linkBtn2" href="#" target="_blank" rel="noopener"></a>
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="retryBtn">다시하기</button>
+        <button type="button" class="btn btn-secondary" id="homeBtn">처음으로</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="countdownOverlay" class="countdown-overlay hidden"></div>
+  <div id="effectsLayer" class="effects-layer" aria-hidden="true"></div>
+
+  <script>
+  (function() {
+    const CLICKS_TO_EMPTY = { easy: 60, medium: 100, hard: 160 };
+    const GRADE_RULES = [
+      { maxSec: 5, grade: '단종을 지킬 진정한 충신', primaryBtn: 1, linkHint: '성지순례를 떠나보시겠소? 영월의 진짜 맛집을 확인해 보시오.', linkText: '영화 속 그 맛! 영월 다슬기국 맛집 지도', linkUrl: 'https://www.google.com/maps/search/영월+다슬기국+맛집', link2Hint: '궁궐의 맛이 궁금하다면? 지금 바로 주문해 보시오.', link2Text: '집에서 즐기는 수라상, 다슬기국 밀키트', link2Url: 'https://www.coupang.com/np/search?q=다슬기국' },
+      { maxSec: 10, grade: '평범한 선비', primaryBtn: 2, linkHint: '성지순례를 떠나보시겠소? 영월의 진짜 맛집을 확인해 보시오.', linkText: '영화 속 그 맛! 영월 다슬기국 맛집 지도', linkUrl: 'https://www.google.com/maps/search/영월+다슬기국+맛집', link2Hint: '궁궐의 맛이 궁금하다면? 지금 바로 주문해 보시오.', link2Text: '집에서 즐기는 수라상, 다슬기국 밀키트', link2Url: 'https://www.coupang.com/np/search?q=다슬기국' },
+      { maxSec: Infinity, grade: '기운 없는 유생', primaryBtn: 1, linkHint: '정기가 부족하다면? 다슬기즙으로 보충하시오.', linkText: '다슬기즙/영양제 (쿠팡)', linkUrl: 'https://www.coupang.com/np/search?q=다슬기즙', link2Hint: '성지순례를 떠나보시겠소? 영월의 진짜 맛집을 확인해 보시오.', link2Text: '영화 속 그 맛! 영월 다슬기국 맛집 지도', link2Url: 'https://www.google.com/maps/search/영월+다슬기국+맛집' }
+    ];
+    const CLICK_MENTS = {
+      high: '귀하의 기개는 하늘을 찌르는구려! 당신은 단종을 지킬 자격이 충분하오. 어서 궁으로 들어와 대업을 함께합시다.',
+      mid: '나쁘지 않은 솜씨요. 하지만 왕을 보필하기엔 조금 부족하구려. 다슬기국을 한 그릇 더 들고 오시오.',
+      low: '이래서야 어찌 험한 세상을 버티겠소? 힘을 더 길러서 다시 오시오! 영월의 정기가 필요한듯하구려.'
+    };
+    const STORAGE_KEYS = { easy: 'best_easy', medium: 'best_medium', hard: 'best_hard' };
+    const DIFF_NAMES = { easy: '쉬움', medium: '중간', hard: '어려움' };
+
+    let state = {
+      nickname: '',
+      age: null,
+      difficulty: 'easy',
+      soupLevel: 100,
+      maxLevel: 100,
+      clickCount: 0,
+      startTime: 0,
+      timerId: null,
+      countdownDone: false
+    };
+
+    const startScreen = document.getElementById('startScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const nicknameInput = document.getElementById('nickname');
+    const ageInput = document.getElementById('age');
+    const startBtn = document.getElementById('startBtn');
+    const bestRecordEl = document.getElementById('bestRecord');
+    const timerEl = document.getElementById('timer');
+    const bowlImg = document.getElementById('bowlImg');
+    const soupImg = document.getElementById('soupImg');
+    const countdownOverlay = document.getElementById('countdownOverlay');
+    const resultGradeEl = document.getElementById('resultGrade');
+    const resultMentEl = document.getElementById('resultMent');
+    const resultTimeEl = document.getElementById('resultTime');
+    const resultBestEl = document.getElementById('resultBest');
+    const linkHint1 = document.getElementById('linkHint1');
+    const linkHint2 = document.getElementById('linkHint2');
+    const linkBtn1 = document.getElementById('linkBtn1');
+    const linkBtn2 = document.getElementById('linkBtn2');
+    const retryBtn = document.getElementById('retryBtn');
+    const homeBtn = document.getElementById('homeBtn');
+    const effectsLayer = document.getElementById('effectsLayer');
+
+    function pad(n) { return String(Math.floor(n)).padStart(2, '0'); }
+    function formatTime(ms) {
+      const m = ms / 60000;
+      const s = (ms % 60000) / 1000;
+      const cs = (ms % 1000) / 10;
+      return `${pad(m)}:${pad(s)}:${pad(cs)}`;
+    }
+
+    function getBest(diff) {
+      const val = localStorage.getItem(STORAGE_KEYS[diff]);
+      return val ? parseInt(val, 10) : null;
+    }
+    function setBest(diff, ms) {
+      localStorage.setItem(STORAGE_KEYS[diff], String(ms));
+    }
+    function updateBestDisplay() {
+      const best = getBest(state.difficulty);
+      bestRecordEl.textContent = best ? `최고 기록: ${formatTime(best)}` : '최고 기록: -';
+    }
+
+    function stopTimer() {
+      if (state.timerId) {
+        cancelAnimationFrame(state.timerId);
+        state.timerId = null;
+      }
+    }
+
+    function startTimer() {
+      const tick = () => {
+        timerEl.textContent = formatTime(Date.now() - state.startTime);
+        state.timerId = requestAnimationFrame(tick);
+      };
+      state.timerId = requestAnimationFrame(tick);
+    }
+
+    function showPopText(x, y) {
+      const el = document.createElement('span');
+      el.className = 'pop-text';
+      el.textContent = '후룩!';
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 700);
+    }
+
+    function getResult(ms) {
+      const sec = ms / 1000;
+      let rule;
+      for (const r of GRADE_RULES) {
+        if (sec <= r.maxSec) { rule = r; break; }
+      }
+      if (!rule) rule = GRADE_RULES[GRADE_RULES.length - 1];
+
+      let clickMent;
+      if (state.clickCount >= 100) clickMent = CLICK_MENTS.high;
+      else if (state.clickCount >= 50) clickMent = CLICK_MENTS.mid;
+      else clickMent = CLICK_MENTS.low;
+
+      return { rule, clickMent };
+    }
+
+    function playSealEffect() {
+      effectsLayer.innerHTML = '<div class="seal-effect">◉</div>';
+      for (let i = 0; i < 24; i++) {
+        const p = document.createElement('div');
+        p.className = 'petal';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.animationDelay = Math.random() * 1.5 + 's';
+        effectsLayer.appendChild(p);
+      }
+      setTimeout(() => { effectsLayer.innerHTML = ''; }, 3000);
+    }
+
+    function playPaperEffect() {
+      effectsLayer.innerHTML = '<div class="paper-effect"></div>';
+      setTimeout(() => { effectsLayer.innerHTML = ''; }, 1600);
+    }
+
+    function showResult(ms) {
+      gameScreen.classList.remove('active');
+      resultScreen.classList.add('active');
+
+      const { rule, clickMent } = getResult(ms);
+      resultGradeEl.textContent = rule.grade;
+      resultMentEl.textContent = clickMent;
+      resultTimeEl.textContent = `${state.nickname || '플레이어'} - ${DIFF_NAMES[state.difficulty]} - ${formatTime(ms)} (${state.clickCount}클릭)`;
+
+      const best = getBest(state.difficulty);
+      const isNewBest = !best || ms < best;
+      if (isNewBest) {
+        setBest(state.difficulty, ms);
+        resultBestEl.textContent = '최고 기록 갱신!';
+      } else {
+        resultBestEl.textContent = `최고 기록: ${formatTime(best)}`;
+      }
+      resultBestEl.style.display = 'block';
+
+      const rankHint = document.getElementById('rankHint');
+      if (rankHint) {
+        rankHint.textContent = '등수 집계 중...';
+        (async function fetchRank() {
+          try {
+            const ageVal = state.age != null && state.age > 0 ? state.age : null;
+            await fetch('/api/godi/record', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                nickname: state.nickname || '플레이어',
+                age: ageVal,
+                time_ms: ms,
+                difficulty: state.difficulty
+              })
+            });
+            const params = new URLSearchParams({ time_ms: String(ms), difficulty: state.difficulty });
+            if (ageVal != null) params.set('age', String(ageVal));
+            const res = await fetch('/api/godi/rank?' + params.toString());
+            const data = await res.json();
+            let txt = `전체 ${data.overall_rank}위 / ${data.overall_total}명`;
+            if (data.age_group && data.age_rank != null && data.age_total != null) {
+              txt += ` · ${data.age_group} ${data.age_rank}위 / ${data.age_total}명`;
+            }
+            rankHint.textContent = txt;
+          } catch (e) {
+            rankHint.textContent = '등수 불러오기 실패';
+          }
+        })();
+      }
+
+      linkHint1.textContent = rule.linkHint;
+      linkBtn1.textContent = rule.linkText;
+      linkBtn1.href = rule.linkUrl;
+      linkHint2.textContent = rule.link2Hint;
+      linkBtn2.textContent = rule.link2Text;
+      linkBtn2.href = rule.link2Url;
+      linkBtn1.className = 'result-link-btn ' + (rule.primaryBtn === 1 ? 'primary' : 'secondary');
+      linkBtn2.className = 'result-link-btn ' + (rule.primaryBtn === 2 ? 'primary' : 'secondary');
+
+      if (state.clickCount >= 100) playSealEffect();
+      else if (state.clickCount < 50) playPaperEffect();
+    }
+
+    function runCountdown(cb) {
+      countdownOverlay.classList.remove('hidden');
+      const steps = [3, 2, 1, '시작!'];
+      let i = 0;
+      const next = () => {
+        if (i >= steps.length) {
+          countdownOverlay.classList.add('hidden');
+          countdownOverlay.textContent = '';
+          state.countdownDone = true;
+          cb();
+          return;
+        }
+        countdownOverlay.textContent = steps[i];
+        i++;
+        setTimeout(next, 1000);
+      };
+      next();
+    }
+
+    function initGame() {
+      state.countdownDone = false;
+      state.nickname = nicknameInput.value.trim() || '플레이어';
+      const ageRaw = ageInput?.value?.trim();
+      state.age = ageRaw ? parseInt(ageRaw, 10) : null;
+      if (state.age != null && (state.age < 1 || state.age > 120)) state.age = null;
+      state.difficulty = document.querySelector('.diff-btn.active')?.dataset.diff || 'easy';
+      state.maxLevel = 100;
+      state.soupLevel = 100;
+      state.clickCount = 0;
+
+      soupImg.style.opacity = '1';
+      soupImg.style.display = '';
+      soupImg.classList.remove('clicked');
+
+      startScreen.classList.remove('active');
+      gameScreen.classList.add('active');
+      resultScreen.classList.remove('active');
+
+      runCountdown(() => {
+        state.startTime = Date.now();
+        startTimer();
+      });
+    }
+
+    function handleSoupClick(e) {
+      if (!state.countdownDone) return;
+      if (state.soupLevel <= 0) return;
+
+      state.clickCount++;
+      showPopText(e.clientX, e.clientY);
+      soupImg.classList.add('clicked');
+      setTimeout(() => soupImg.classList.remove('clicked'), 150);
+
+      const decrement = state.maxLevel / CLICKS_TO_EMPTY[state.difficulty];
+      state.soupLevel = Math.max(0, state.soupLevel - decrement);
+      soupImg.style.opacity = String(state.soupLevel / 100);
+
+      if (state.soupLevel <= 0) {
+        stopTimer();
+        soupImg.style.display = 'none';
+        showResult(Date.now() - state.startTime);
+      }
+    }
+
+    function bindEvents() {
+      document.querySelectorAll('.diff-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.diff-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          updateBestDisplay();
+        });
+      });
+
+      startBtn.addEventListener('click', () => {
+        if (!document.querySelector('.diff-btn.active')) {
+          document.querySelector('.diff-btn[data-diff="easy"]').classList.add('active');
+        }
+        initGame();
+      });
+
+      soupImg.addEventListener('click', handleSoupClick);
+
+      retryBtn.addEventListener('click', () => {
+        resultScreen.classList.remove('active');
+        gameScreen.classList.add('active');
+        initGame();
+      });
+
+      homeBtn.addEventListener('click', () => {
+        resultScreen.classList.remove('active');
+        gameScreen.classList.remove('active');
+        startScreen.classList.add('active');
+        stopTimer();
+        updateBestDisplay();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelector('.diff-btn[data-diff="easy"]').classList.add('active');
+      updateBestDisplay();
+      bindEvents();
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}{{ session.result_type }} 결과{% endblock %}
+{% block og_title %}{{ session.result_type }} | 왕과 사는 남자{% endblock %}
+{% block og_description %}
+나는 왕과 사는 남자 세계관에서 '{{ session.result_type }}' 유형입니다.
+{% endblock %}
+
+{% block content %}
+<section class="section section-tight">
+  <div class="container narrow-container">
+    <div
+      class="result-shell"
+      id="result-page"
+      data-session-uuid="{{ session.session_uuid }}"
+      data-result-type="{{ session.result_type }}"
+      data-total-score="{{ session.total_score }}"
+      data-emotion-word="{{ session.emotion_word }}"
+      data-wordcloud-words=""
+    >
+      <article class="panel result-card share-card" id="result-card">
+        <span class="eyebrow">Worldview Result</span>
+
+        {% if session.result_type == "관계형 보호자" %}
+          <img
+            class="result-character-image"
+            src="{{ request.url_for('images', path='엄흥도.png') }}"
+            alt="엄흥도"
+          >
+        {% elif session.result_type == "조용한 동행자" %}
+          <img
+            class="result-character-image"
+            src="{{ request.url_for('images', path='매화.png') }}"
+            alt="매화"
+          >
+        {% elif session.result_type == "행동하는 이상가" %}
+          <img
+            class="result-character-image"
+            src="{{ request.url_for('images', path='금성대군.png') }}"
+            alt="금성대군"
+          >
+        {% elif session.result_type == "권력형 전략가" %}
+          <img
+            class="result-character-image"
+            src="{{ request.url_for('images', path='한명회.png') }}"
+            alt="한명회"
+          >
+        {% else %}
+          <img
+            class="result-character-image"
+            src="{{ request.url_for('images', path='단종.png') }}"
+            alt="단종"
+          >
+        {% endif %}
+
+        <div class="result-score">{{ session.total_score }}점</div>
+        <h1 class="result-type">{{ session.result_type }}</h1>
+
+        {% if session.result_type == "관계형 보호자" %}
+          <p class="result-tagline">처음부터 영웅은 아니지만 결국 사람을 지키기 위해 남는 유형</p>
+          <p class="result-description">
+            당신은 두려움이 없는 사람이 아니라, 두려움 속에서도 끝내 사람을
+            외면하지 않는 사람입니다. 위험을 잘 알면서도 마지막에는 곁에 남아
+            누군가를 지키는 선택을 합니다.
+          </p>
+          <p class="result-share-copy" id="result-share-copy">
+            나는 왕과 사는 남자 세계관에서 '관계형 보호자' 유형입니다.
+          </p>
+        {% elif session.result_type == "조용한 동행자" %}
+          <p class="result-tagline">앞에 나서지 않지만 끝까지 곁을 지키는 사람</p>
+          <p class="result-description">
+            당신은 큰 목소리로 자신을 드러내기보다 조용히 곁을 지키는 유형입니다.
+            모두가 떠날 이유를 찾을 때도, 당신은 누군가의 외로움을 먼저 알아차리고
+            오래 머무는 사람입니다.
+          </p>
+          <p class="result-share-copy" id="result-share-copy">
+            나는 왕과 사는 남자 세계관에서 '조용한 동행자' 유형입니다.
+          </p>
+        {% elif session.result_type == "행동하는 이상가" %}
+          <p class="result-tagline">옳다고 믿는 것을 위해 위험을 감수하고 움직이는 사람</p>
+          <p class="result-description">
+            당신은 옳다고 믿는 가치를 위해 몸을 던질 수 있는 사람입니다.
+            계산보다 결단이 앞서며, 위험을 알면서도 행동이 멈추지 않습니다.
+            누군가에게는 무모해 보여도 세상을 바꾸는 힘은 이런 선택에서 나옵니다.
+          </p>
+          <p class="result-share-copy" id="result-share-copy">
+            나는 왕과 사는 남자 세계관에서 '행동하는 이상가' 유형입니다.
+          </p>
+        {% elif session.result_type == "권력형 전략가" %}
+          <p class="result-tagline">감정보다 질서와 권력을 우선하는 사람</p>
+          <p class="result-description">
+            당신은 혼란 속에서도 권력의 흐름을 읽고 움직이는 사람입니다.
+            감정에 흔들리기보다 질서, 명분, 승자의 구도를 먼저 계산합니다.
+            차갑게 보일 수 있지만 당신에게 중요한 것은 살아남는 판입니다.
+          </p>
+          <p class="result-share-copy" id="result-share-copy">
+            나는 왕과 사는 남자 세계관에서 '권력형 전략가' 유형입니다.
+          </p>
+        {% else %}
+          <p class="result-tagline">자신의 선택이 사람들의 운명을 바꾼다는 것을 아는 사람</p>
+          <p class="result-description">
+            당신은 한 번의 선택이 주변 모두의 삶을 흔들 수 있다는 사실을
+            깊이 이해하는 사람입니다. 쉽게 결론을 내리지 않지만,
+            결국 책임의 무게를 받아들이고 중심에 서게 됩니다.
+          </p>
+          <p class="result-share-copy" id="result-share-copy">
+            나는 왕과 사는 남자 세계관에서 '책임을 짊어진 중심' 유형입니다.
+          </p>
+        {% endif %}
+
+        <div class="position-visuals">
+          <div class="position-card">
+            <span class="position-card__label">내 점수 위치</span>
+            <strong id="score-rank-label" class="position-card__value">계산 중</strong>
+            <div class="score-meter">
+              <span id="score-meter-fill" class="score-meter__fill"></span>
+              <span id="average-marker" class="score-meter__average"></span>
+            </div>
+            <p id="average-compare" class="position-card__caption">집계 중</p>
+          </div>
+          <div class="position-card">
+            <span class="position-card__label">내 유형 위치</span>
+            <strong id="rarity-value" class="position-card__value">집계 중</strong>
+            <div class="rarity-meter">
+              <span id="rarity-meter-fill" class="rarity-meter__fill"></span>
+            </div>
+            <p id="rarity-caption" class="position-card__caption">집계 중</p>
+          </div>
+        </div>
+
+        <div class="result-wordcloud-section">
+          <span class="eyebrow">나의 검사 결과</span>
+          <h2 class="result-wordcloud-title">워드 클라우드</h2>
+          <div id="result-wordcloud" class="result-wordcloud" aria-label="검사 결과 키워드"></div>
+        </div>
+      </article>
+
+      <section class="panel result-actions-panel">
+        <div class="section-heading">
+          <span class="eyebrow">Share</span>
+          <h2>결과를 공유해보세요</h2>
+        </div>
+        <p class="live-counter result-participants" id="result-participants">🔥지금까지 <span class="result-count-num">0</span>명이 참여했어요</p>
+        <p class="result-share-hint">
+          SNS 공유 문구:
+          <strong id="result-share-hint-text"></strong>
+        </p>
+        <div class="result-actions">
+          <button type="button" class="btn btn-primary" id="share-kakao-button">카카오톡</button>
+          <button type="button" class="btn btn-secondary" id="share-sms-button">문자</button>
+          <button type="button" class="btn btn-secondary" id="share-instagram-button">인스타</button>
+          <button type="button" class="btn btn-secondary" id="copy-link-button">링크 복사</button>
+        </div>
+        <p class="form-feedback" id="share-feedback" aria-live="polite"></p>
+      </section>
+
+      <section class="panel result-actions-panel result-game-panel">
+        <div class="result-game-buttons">
+          <a class="btn btn-primary" href="/game/godi/{{ session.session_uuid }}">단종 응원하기</a>
+        </div>
+        <a class="btn btn-ghost" href="/test">다시 테스트하기</a>
+      </section>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ request.url_for('static', path='js/result.js') }}"></script>
+{% endblock %}

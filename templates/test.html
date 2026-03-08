@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}충성도 테스트{% endblock %}
+
+{% block content %}
+<section class="section section-tight">
+  <div class="container narrow-container">
+    <div class="section-heading">
+      <span class="eyebrow">10 Questions</span>
+      <h1>충성도 테스트</h1>
+      <p>왕과 그를 둘러싼 사람들 사이에서, 당신이 어떤 선택을 할 사람인지 판별합니다.</p>
+    </div>
+
+    <div class="panel test-shell" id="test-app">
+      <div class="test-topbar">
+        <div class="test-progress-copy">
+          <span id="progress-label">1 / 10</span>
+        </div>
+        <div class="progress-track">
+          <span id="progress-fill"></span>
+        </div>
+      </div>
+
+      <div id="test-message" class="test-message" aria-live="polite"></div>
+
+      <div id="question-stage" class="question-stage">
+        <p class="question-index" id="question-index">Q1</p>
+        <h2 class="question-text" id="question-text"></h2>
+        <div class="options-list" id="options-list"></div>
+      </div>
+
+      <div id="emotion-stage" class="emotion-stage is-hidden">
+        <p class="question-index">마지막 질문</p>
+        <h2 class="question-text">이 세계관에서 가장 강하게 남는 감정은 무엇인가요?</h2>
+        <div class="emotion-grid" id="emotion-list"></div>
+      </div>
+
+      <div class="form-feedback" id="form-feedback" aria-live="polite"></div>
+
+      <div class="test-actions">
+        <button type="button" class="btn btn-ghost" id="prev-button">이전</button>
+        <button type="button" class="btn btn-primary" id="next-button">다음</button>
+        <button type="button" class="btn btn-primary is-hidden" id="submit-button">결과 보기</button>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ request.url_for('static', path='js/test.js') }}"></script>
+{% endblock %}

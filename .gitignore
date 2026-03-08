@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.venv/
+venv/
+env/
+
+# DB (로컬 테스트용, 배포 시 새로 생성됨)
+*.db
+*.sqlite
+*.sqlite3
+
+# 환경 변수 (비밀키 등)
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

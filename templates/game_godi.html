@@ -1,0 +1,843 @@
+{% extends "base.html" %}
+{% block title %}다슬기국 빨리 먹기{% endblock %}
+
+{% block body_class %}godi-page{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  .godi-page .site-main { padding: 0; min-height: calc(100vh - 72px); }
+  .godi-page .site-footer { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<style>
+  .godi-shell {
+    width: 100vw;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e8ddd0 0%, #d4c4b0 50%, #c9b89a 100%);
+    font-family: "Gowun Batang", "Noto Serif KR", serif;
+    position: relative;
+    overflow-x: hidden;
+  }
+  .godi-screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 24px;
+    padding-top: 32px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  .godi-screen.active { display: flex; }
+  #godi-result.godi-screen {
+    padding-top: calc(88px + env(safe-area-inset-top, 0px));
+    padding-bottom: 48px;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  .godi-title {
+    text-align: center;
+    color: #4a3525;
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .godi-desc {
+    text-align: center;
+    color: #5c4535;
+    font-size: 1rem;
+    margin-bottom: 24px;
+    line-height: 1.7;
+  }
+  .godi-entry-card {
+    background: rgba(255, 250, 240, 0.9);
+    padding: 28px;
+    border-radius: 16px;
+    border: 1px solid rgba(139, 115, 85, 0.3);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    max-width: 400px;
+    width: 100%;
+  }
+  .godi-input-wrap { margin-bottom: 20px; }
+  .godi-input-wrap label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #4a3525;
+  }
+  .godi-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #8b7355;
+    border-radius: 10px;
+    font-size: 1rem;
+    background: #fffef9;
+    box-sizing: border-box;
+  }
+  .godi-diff-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .godi-diff-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 12px 16px;
+    border: 2px solid #8b7355;
+    border-radius: 10px;
+    background: rgba(255,250,240,0.8);
+    color: #4a3525;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .godi-diff-btn:hover { background: rgba(212, 168, 79, 0.2); }
+  .godi-diff-btn.active {
+    background: #8b7355;
+    color: #fffef9;
+    border-color: #6b5344;
+  }
+  .godi-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+  }
+  .godi-btn-primary {
+    background: linear-gradient(180deg, #c9a855 0%, #a8843a 100%);
+    color: #fffef9;
+    box-shadow: 0 4px 12px rgba(139,115,85,0.3);
+  }
+  .godi-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(139,115,85,0.4);
+  }
+  .godi-btn-secondary {
+    background: rgba(139,115,85,0.25);
+    color: #4a3525;
+    border: 2px solid #8b7355;
+  }
+  .godi-btn-secondary:hover { background: rgba(139,115,85,0.35); }
+  .godi-best-record {
+    margin-top: 20px;
+    padding: 12px;
+    background: rgba(139,115,85,0.1);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #5c4535;
+  }
+  .godi-rank-link {
+    display: block;
+    margin-top: 12px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #8b7355;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .godi-rank-link:hover { color: #a8843a; }
+  .godi-rank-link-wrap {
+    margin: 20px 0 24px;
+    padding: 16px 24px;
+    text-align: center;
+    background: rgba(255,250,240,0.9);
+    border: 2px solid rgba(139,115,85,0.35);
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .godi-rank-link-result {
+    display: inline-block;
+    font-size: 1rem;
+    color: #8b7355;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .godi-rank-link-result:hover { color: #a8843a; }
+  .godi-game-shell {
+    position: relative;
+    width: 100%;
+    max-width: min(700px, 92vw);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+  }
+  .godi-hud {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+    padding: 10px 16px;
+    background: rgba(255,250,240,0.9);
+    border-radius: 12px;
+    border: 1px solid rgba(139,115,85,0.25);
+    flex-shrink: 0;
+  }
+  .godi-timer {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #4a3525;
+    font-variant-numeric: tabular-nums;
+  }
+  .godi-bowl-wrap {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+  .godi-bowl-img, .godi-soup-img {
+    position: absolute;
+    max-width: min(700px, 90vw);
+    max-height: min(85vh, 520px);
+    width: auto;
+    height: auto;
+    pointer-events: none;
+  }
+  .godi-soup-img {
+    pointer-events: auto;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.2s;
+  }
+  .godi-soup-img:hover { transform: scale(1.02); }
+  .godi-soup-img.clicked { transform: scale(1.05); }
+  .godi-pop-text {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    font-size: 18px;
+    color: #8b7355;
+    font-weight: 700;
+    animation: godiPopFade 0.7s ease-out forwards;
+  }
+  @keyframes godiPopFade {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.4) translateY(-30px); }
+  }
+  .godi-countdown {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    font-size: clamp(4rem, 15vw, 8rem);
+    font-weight: 800;
+    color: #fffef9;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .godi-countdown.hidden { display: none; }
+  .godi-result-wrapper {
+    max-width: 520px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 0;
+  }
+  .godi-result-scoreboard {
+    background: linear-gradient(145deg, rgba(255,250,240,0.98) 0%, rgba(248,242,232,0.98) 100%);
+    padding: 28px 24px;
+    border-radius: 20px;
+    border: 2px solid rgba(139, 115, 85, 0.4);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .godi-result-grade {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #4a3525;
+    margin-bottom: 8px;
+    font-family: "Gowun Batang", "Noto Serif KR", serif;
+  }
+  .godi-result-time {
+    font-size: 1.35rem;
+    color: #8b7355;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .godi-result-best {
+    color: #a8843a;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+  .godi-result-participants {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #8b7355;
+    margin-bottom: 16px;
+    padding: 8px 14px;
+    background: rgba(139,115,85,0.08);
+    border-radius: 10px;
+    display: inline-block;
+  }
+  .godi-count-num {
+    color: #c62828;
+    font-weight: 700;
+  }
+  .godi-result-rank-bar {
+    height: 12px;
+    background: rgba(139,115,85,0.15);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .godi-result-rank-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #c9a855 0%, #a8843a 100%);
+    border-radius: inherit;
+    transition: width 0.4s ease;
+  }
+  .godi-result-rank-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #4a3525;
+  }
+  .godi-result-ment {
+    line-height: 1.85;
+    margin: 24px 0 28px;
+    color: #3d2c1f;
+    font-size: 1.35rem;
+    font-weight: 600;
+    font-family: "Gowun Batang", "Noto Serif KR", serif;
+    padding: 28px 32px;
+    background: linear-gradient(145deg, rgba(255,250,240,0.98) 0%, rgba(248,242,232,0.98) 100%);
+    border-radius: 20px;
+    border: 2px solid rgba(139,115,85,0.35);
+    border-left: 6px solid #c9a855;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  }
+  .godi-result-divider {
+    height: 1px;
+    background: rgba(139,115,85,0.25);
+    margin: 0 0 24px;
+  }
+  .godi-result-benefits {
+    background: rgba(255,250,240,0.5);
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid rgba(139,115,85,0.2);
+  }
+  .godi-result-benefits-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #5c4535;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .godi-result-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .godi-result-benefits-disclaimer {
+    margin: 16px 0 0;
+    font-size: 0.8rem;
+    color: #6b5b4a;
+    line-height: 1.5;
+    text-align: center;
+  }
+  .godi-result-card-item {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(139,115,85,0.25);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .godi-result-card-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  .godi-result-card-thumb {
+    height: 100px;
+    background: linear-gradient(135deg, #e8ddd0 0%, #d4c4b0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .godi-result-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .godi-result-card-body {
+    padding: 14px 18px;
+  }
+  .godi-result-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #4a3525;
+    margin-bottom: 4px;
+  }
+  .godi-result-card-desc {
+    font-size: 0.9rem;
+    color: #6b5b4a;
+  }
+  .godi-btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  .godi-btn-row .godi-btn { flex: 1; min-width: 120px; }
+</style>
+
+<div class="godi-shell" data-session-uuid="{{ session.session_uuid }}">
+  <div id="godi-entry" class="godi-screen active">
+    <h1 class="godi-title"><strong>다슬기국 빨리 먹기</strong></h1>
+    <p class="godi-desc">당신에겐 정성껏 모실 수 있는 힘이 얼마나 있는지 확인해보세요.</p>
+    <p class="godi-desc" style="margin-top:-12px;font-size:0.95rem;">국물을 후룩후룩 마셔서 빈 그릇을 만들어 보세요.</p>
+    <div class="godi-entry-card">
+      <div class="godi-input-wrap">
+        <label for="godi-nickname">닉네임</label>
+        <input type="text" id="godi-nickname" class="godi-input" placeholder="닉네임 입력" maxlength="20">
+      </div>
+      <div class="godi-input-wrap">
+        <label for="godi-age">나이(만)</label>
+        <input type="number" id="godi-age" class="godi-input" placeholder="나이 입력 (선택)" min="1" max="120" inputmode="numeric">
+      </div>
+      <div class="godi-diff-row">
+        <button type="button" class="godi-diff-btn" data-diff="easy">쉬움</button>
+        <button type="button" class="godi-diff-btn" data-diff="medium">중간</button>
+        <button type="button" class="godi-diff-btn" data-diff="hard">어려움</button>
+      </div>
+      <button type="button" class="godi-btn godi-btn-primary" id="godi-start-btn">게임 시작</button>
+      <div class="godi-best-record" id="godi-best-record">최고 기록: -</div>
+      <a href="/godi/rank?from={{ ('/game/godi/' ~ session.session_uuid) | urlencode }}" class="godi-rank-link" target="_blank" rel="noopener">랭킹 구경하기</a>
+    </div>
+  </div>
+
+  <div id="godi-play" class="godi-screen">
+    <h1 class="godi-title"><strong>다슬기국 빨리 먹기</strong></h1>
+    <div class="godi-game-shell">
+      <div class="godi-hud">
+        <span class="godi-timer" id="godi-timer">00:00:00</span>
+      </div>
+      <div class="godi-bowl-wrap">
+        <img class="godi-bowl-img" id="godi-bowl" src="/images/game_bowl.png" alt="빈 그릇">
+        <img class="godi-soup-img" id="godi-soup" src="/images/game_soup.png" alt="국물">
+      </div>
+    </div>
+  </div>
+
+  <div id="godi-result" class="godi-screen">
+    <h1 class="godi-title"><strong>결과</strong></h1>
+    <div class="godi-result-wrapper">
+      <div class="godi-result-scoreboard">
+        <div class="godi-result-grade" id="godi-grade"></div>
+        <p class="godi-result-time" id="godi-time"></p>
+        <p class="godi-result-best" id="godi-best"></p>
+        <p class="godi-result-participants" id="godi-participants">🔥지금까지 <span class="godi-count-num">0</span>명이 참여했어요</p>
+        <div class="godi-result-rank-bar">
+          <div class="godi-result-rank-bar-fill" id="godi-rank-bar" style="width:0%"></div>
+        </div>
+        <p class="godi-result-rank-text" id="godi-rank-text">등수 집계 중...</p>
+      </div>
+      <div class="godi-rank-link-wrap">
+        <a href="/godi/rank?from={{ ('/game/godi/' ~ session.session_uuid ~ '?screen=result') | urlencode }}" class="godi-rank-link-result" id="godi-rank-link-result" target="_blank" rel="noopener">랭킹 구경하기</a>
+      </div>
+      <blockquote class="godi-result-ment" id="godi-ment"></blockquote>
+      <hr class="godi-result-divider">
+      <div class="godi-result-benefits">
+        <p class="godi-result-benefits-title">성지순례를 떠나보시겠소?</p>
+        <div class="godi-result-cards">
+          <a class="godi-result-card-item" href="https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&ssc=tab.nx.all&query=%EB%8B%A8%EC%A2%85++%EB%AC%B8%ED%99%94%EC%A0%9C&oquery=%EB%8B%A8%EC%A2%85+%EC%98%81%EC%9B%94+%EC%97%AC%ED%96%89%EC%BD%94%EC%8A%A4&tqi=jj1wlwqosZqFRbks7mV-468742&ackey=fia3xx9y" target="_blank" rel="noopener">
+            <div class="godi-result-card-thumb">
+              <img src="/images/game_soup.png" alt="단종문화제">
+            </div>
+            <div class="godi-result-card-body">
+              <div class="godi-result-card-title">단종문화제</div>
+              <div class="godi-result-card-desc">영월에서 단종의 고혼과 충신들의 넋을 축제로 만나보시오.</div>
+            </div>
+          </a>
+          <a class="godi-result-card-item" href="https://naver.me/FDnCkYOi" target="_blank" rel="noopener">
+            <div class="godi-result-card-thumb">
+              <img src="/images/game_soup.png" alt="다슬기국">
+            </div>
+            <div class="godi-result-card-body">
+              <div class="godi-result-card-title">수라상 맛집 추천</div>
+              <div class="godi-result-card-desc">영월의 진짜 맛집을 확인해 보시오.</div>
+            </div>
+          </a>
+          <a class="godi-result-card-item" href="https://naver.me/5l7k5vJd" target="_blank" rel="noopener">
+            <div class="godi-result-card-thumb">
+              <img src="/images/game_bowl.png" alt="다슬기국 밀키트">
+            </div>
+            <div class="godi-result-card-body">
+              <div class="godi-result-card-title">단종 다슬기국</div>
+              <div class="godi-result-card-desc">궁궐의 맛이 궁금하다면? 지금 바로 주문해 보시오.</div>
+            </div>
+          </a>
+        </div>
+        <p class="godi-result-benefits-disclaimer">*본 정보는 수익형 광고가 아니며, 영화의 여운을 함께 나누고자 운영자 개인이 사심 없이 추천하는 리스트입니다.</p>
+      </div>
+      <div class="godi-btn-row">
+        <button type="button" class="godi-btn godi-btn-primary" id="godi-retry-btn">다시하기</button>
+        <button type="button" class="godi-btn godi-btn-secondary" id="godi-home-btn">처음으로</button>
+        <a href="/result/{{ session.session_uuid }}" class="godi-btn godi-btn-secondary">결과로 돌아가기</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="godi-countdown" class="godi-countdown hidden"></div>
+
+<script>
+(function() {
+  const CLICKS_TO_EMPTY = { easy: 60, medium: 100, hard: 160 };
+  const GRADE_RULES = {
+    easy: [
+      { maxSec: 7, grade: '다슬기국 장인' },
+      { maxSec: 12, grade: '국물 애호가' },
+      { maxSec: Infinity, grade: '천천히 먹는 스타일' }
+    ],
+    medium: [
+      { maxSec: 10, grade: '다슬기국 장인' },
+      { maxSec: 18, grade: '국물 애호가' },
+      { maxSec: Infinity, grade: '천천히 먹는 스타일' }
+    ],
+    hard: [
+      { maxSec: 15, grade: '전설의 후루룩 장인' },
+      { maxSec: 25, grade: '숙련된 먹방러' },
+      { maxSec: Infinity, grade: '꾸준한 도전자' }
+    ]
+  };
+  const CLICK_MENTS = {
+    high: '귀하의 기개는 하늘을 찌르는구려! 당신은 단종을 지킬 자격이 충분하오. 어서 궁으로 들어와 대업을 함께합시다.',
+    mid: '나쁘지 않은 솜씨요. 하지만 왕을 보필하기엔 조금 부족하구려. 다슬기국을 한 그릇 더 들고 오시오.',
+    low: '이래서야 어찌 험한 세상을 버티겠소? 힘을 더 길러서 다시 오시오! 영월의 정기가 필요한듯하구려.'
+  };
+  const STORAGE_KEYS = { easy: 'best_easy', medium: 'best_medium', hard: 'best_hard' };
+  const DIFF_NAMES = { easy: '쉬움', medium: '중간', hard: '어려움' };
+
+  const entryScreen = document.getElementById('godi-entry');
+  const playScreen = document.getElementById('godi-play');
+  const resultScreen = document.getElementById('godi-result');
+  const nicknameInput = document.getElementById('godi-nickname');
+  const ageInput = document.getElementById('godi-age');
+  const startBtn = document.getElementById('godi-start-btn');
+  const bestRecordEl = document.getElementById('godi-best-record');
+  const timerEl = document.getElementById('godi-timer');
+  const soupImg = document.getElementById('godi-soup');
+  const countdownEl = document.getElementById('godi-countdown');
+  const gradeEl = document.getElementById('godi-grade');
+  const mentEl = document.getElementById('godi-ment');
+  const timeEl = document.getElementById('godi-time');
+  const bestEl = document.getElementById('godi-best');
+  const participantsEl = document.getElementById('godi-participants');
+  const rankBarEl = document.getElementById('godi-rank-bar');
+  const rankTextEl = document.getElementById('godi-rank-text');
+  const retryBtn = document.getElementById('godi-retry-btn');
+  const homeBtn = document.getElementById('godi-home-btn');
+
+  let state = {
+    nickname: '',
+    age: null,
+    difficulty: 'easy',
+    soupLevel: 100,
+    maxLevel: 100,
+    clickCount: 0,
+    startTime: 0,
+    timerId: null,
+    countdownDone: false
+  };
+
+  function pad(n) { return String(Math.floor(n)).padStart(2, '0'); }
+  function formatTime(ms) {
+    const m = ms / 60000;
+    const s = (ms % 60000) / 1000;
+    const cs = (ms % 1000) / 10;
+    return `${pad(m)}:${pad(s)}:${pad(cs)}`;
+  }
+
+  function getBest(diff) {
+    const val = localStorage.getItem(STORAGE_KEYS[diff]);
+    return val ? parseInt(val, 10) : null;
+  }
+  function setBest(diff, ms) {
+    localStorage.setItem(STORAGE_KEYS[diff], String(ms));
+  }
+  function updateBestDisplay() {
+    const best = getBest(state.difficulty);
+    bestRecordEl.textContent = best ? `최고 기록: ${formatTime(best)}` : '최고 기록: -';
+  }
+
+  function stopTimer() {
+    if (state.timerId) {
+      cancelAnimationFrame(state.timerId);
+      state.timerId = null;
+    }
+  }
+
+  function startTimer() {
+    const tick = () => {
+      timerEl.textContent = formatTime(Date.now() - state.startTime);
+      state.timerId = requestAnimationFrame(tick);
+    };
+    state.timerId = requestAnimationFrame(tick);
+  }
+
+  function showPopText(x, y) {
+    const el = document.createElement('span');
+    el.className = 'godi-pop-text';
+    el.textContent = '후룩!';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 700);
+  }
+
+  function getGrade(ms) {
+    const sec = ms / 1000;
+    const rules = GRADE_RULES[state.difficulty];
+    for (const r of rules) {
+      if (sec <= r.maxSec) return r.grade;
+    }
+    return rules[rules.length - 1].grade;
+  }
+
+  function getClickMent() {
+    if (state.clickCount >= 100) return CLICK_MENTS.high;
+    if (state.clickCount >= 50) return CLICK_MENTS.mid;
+    return CLICK_MENTS.low;
+  }
+
+  let lastResultMs = null;
+
+  function showResult(ms) {
+    lastResultMs = ms;
+    playScreen.classList.remove('active');
+    resultScreen.classList.add('active');
+
+    gradeEl.textContent = getGrade(ms);
+    mentEl.textContent = getClickMent();
+    timeEl.textContent = `${state.nickname || '플레이어'} - ${DIFF_NAMES[state.difficulty]} - ${formatTime(ms)}`;
+
+    const best = getBest(state.difficulty);
+    const isNewBest = !best || ms < best;
+    if (isNewBest) {
+      setBest(state.difficulty, ms);
+      bestEl.textContent = '최고 기록 갱신!';
+    } else {
+      bestEl.textContent = `최고 기록: ${formatTime(best)}`;
+    }
+    bestEl.style.display = 'block';
+
+    participantsEl.textContent = '참여자 집계 중...';
+    rankTextEl.textContent = '등수 집계 중...';
+    rankBarEl.style.width = '0%';
+
+    (async function fetchRank() {
+      try {
+        const ageVal = state.age != null && state.age > 0 ? state.age : null;
+        await fetch('/api/godi/record', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nickname: state.nickname || '플레이어',
+            age: ageVal,
+            time_ms: ms,
+            difficulty: state.difficulty
+          })
+        });
+        const params = new URLSearchParams({ time_ms: String(ms), difficulty: state.difficulty });
+        if (ageVal != null) params.set('age', String(ageVal));
+        const res = await fetch('/api/godi/rank?' + params.toString());
+        const data = await res.json();
+        const total = data.overall_total || 1;
+        const rank = data.overall_rank || 1;
+        const topPercent = Math.max(0, 100 - (rank / total) * 100);
+        participantsEl.innerHTML = `🔥지금까지 <span class="godi-count-num">${total}</span>명이 참여했어요`;
+        rankTextEl.textContent = `전체 ${rank}위 / ${total}명 (상위 ${topPercent.toFixed(1)}%)`;
+        rankBarEl.style.width = `${topPercent}%`;
+      } catch (e) {
+        participantsEl.textContent = '참여자 수를 불러올 수 없어요';
+        rankTextEl.textContent = '등수를 불러올 수 없어요';
+      }
+    })();
+  }
+
+  function runCountdown(cb) {
+    countdownEl.classList.remove('hidden');
+    const steps = [3, 2, 1, '시작!'];
+    let i = 0;
+    const next = () => {
+      if (i >= steps.length) {
+        countdownEl.classList.add('hidden');
+        countdownEl.textContent = '';
+        state.countdownDone = true;
+        cb();
+        return;
+      }
+      countdownEl.textContent = steps[i];
+      i++;
+      setTimeout(next, 1000);
+    };
+    next();
+  }
+
+  function initGame() {
+    state.countdownDone = false;
+    state.nickname = nicknameInput.value.trim() || '플레이어';
+    const ageRaw = ageInput?.value?.trim();
+    state.age = ageRaw ? parseInt(ageRaw, 10) : null;
+    if (state.age != null && (state.age < 1 || state.age > 120)) state.age = null;
+    state.difficulty = document.querySelector('.godi-diff-btn.active')?.dataset.diff || 'easy';
+    state.maxLevel = 100;
+    state.soupLevel = 100;
+    state.clickCount = 0;
+
+    soupImg.style.opacity = '1';
+    soupImg.style.display = '';
+    soupImg.classList.remove('clicked');
+
+    entryScreen.classList.remove('active');
+    playScreen.classList.add('active');
+    resultScreen.classList.remove('active');
+
+    runCountdown(() => {
+      state.startTime = Date.now();
+      startTimer();
+    });
+  }
+
+  function handleSoupClick(e) {
+    if (!state.countdownDone) return;
+    if (state.soupLevel <= 0) return;
+
+    state.clickCount++;
+    showPopText(e.clientX, e.clientY);
+    soupImg.classList.add('clicked');
+    setTimeout(() => soupImg.classList.remove('clicked'), 150);
+
+    const decrement = state.maxLevel / CLICKS_TO_EMPTY[state.difficulty];
+    state.soupLevel = Math.max(0, state.soupLevel - decrement);
+    soupImg.style.opacity = String(state.soupLevel / 100);
+
+    if (state.soupLevel <= 0) {
+      stopTimer();
+      soupImg.style.display = 'none';
+      showResult(Date.now() - state.startTime);
+    }
+  }
+
+  document.querySelectorAll('.godi-diff-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.godi-diff-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateBestDisplay();
+    });
+  });
+
+  startBtn.addEventListener('click', () => {
+    if (!document.querySelector('.godi-diff-btn.active')) {
+      document.querySelector('.godi-diff-btn[data-diff="easy"]').classList.add('active');
+    }
+    initGame();
+  });
+
+  soupImg.addEventListener('click', handleSoupClick);
+
+  retryBtn.addEventListener('click', () => {
+    resultScreen.classList.remove('active');
+    playScreen.classList.add('active');
+    initGame();
+  });
+
+  homeBtn.addEventListener('click', () => {
+    resultScreen.classList.remove('active');
+    playScreen.classList.remove('active');
+    entryScreen.classList.add('active');
+    stopTimer();
+    updateBestDisplay();
+  });
+
+  const rankLinkResult = document.getElementById('godi-rank-link-result');
+  if (rankLinkResult) {
+    rankLinkResult.addEventListener('click', (e) => {
+      if (lastResultMs == null) return;
+      const sessionUuid = document.querySelector('.godi-shell')?.dataset?.sessionUuid;
+      if (!sessionUuid) return;
+      e.preventDefault();
+      const saved = {
+        ms: lastResultMs,
+        grade: gradeEl.textContent,
+        ment: mentEl.textContent,
+        time: timeEl.textContent,
+        best: bestEl.textContent,
+        participants: participantsEl.innerHTML,
+        rankText: rankTextEl.textContent,
+        rankBar: rankBarEl.style.width
+      };
+      try {
+        sessionStorage.setItem('godi_result_' + sessionUuid, JSON.stringify(saved));
+      } catch (err) {}
+      window.open(rankLinkResult.href, '_blank', 'noopener,noreferrer');
+    });
+  }
+
+  function tryRestoreResult() {
+    const params = new URLSearchParams(location.search);
+    if (params.get('screen') !== 'result') return;
+    const sessionUuid = document.querySelector('.godi-shell')?.dataset?.sessionUuid;
+    if (!sessionUuid) return;
+    let saved;
+    try {
+      saved = JSON.parse(sessionStorage.getItem('godi_result_' + sessionUuid) || 'null');
+    } catch (e) { return; }
+    if (!saved) return;
+    entryScreen.classList.remove('active');
+    playScreen.classList.remove('active');
+    resultScreen.classList.add('active');
+    gradeEl.textContent = saved.grade || '';
+    mentEl.textContent = saved.ment || '';
+    timeEl.textContent = saved.time || '';
+    bestEl.textContent = saved.best || '';
+    bestEl.style.display = 'block';
+    participantsEl.innerHTML = saved.participants || '🔥지금까지 <span class="godi-count-num">0</span>명이 참여했어요';
+    rankTextEl.textContent = saved.rankText || '등수 집계 중...';
+    rankBarEl.style.width = saved.rankBar || '0%';
+  }
+
+  function runInit() {
+    document.querySelector('.godi-diff-btn[data-diff="easy"]')?.classList.add('active');
+    updateBestDisplay();
+    tryRestoreResult();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runInit);
+  } else {
+    runInit();
+  }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>단종마마 웃기기</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-shell">
+    <div id="game-board">
+      <div id="gauge-eraser" aria-hidden="true"></div>
+      <div id="stew-hitbox" aria-label="김치찌개 클릭"></div>
+      <div id="tiger-wrap" class="is-hidden" aria-hidden="true">
+        <img id="tiger-gif" src="/images/game_tiger.gif" alt="">
+      </div>
+      <div id="timer-display">10초</div>
+    </div>
+
+    <div id="ad-popup" class="modal is-hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <h2>전하를 이대로 포기하시겠습니까?</h2>
+        <div class="modal-actions">
+          <button type="button" id="revive-btn">광고 보고 부활</button>
+          <button type="button" id="restart-btn">처음부터</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="game-over" class="modal is-hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <h2 id="game-over-title">게임 종료</h2>
+        <p id="game-over-text"></p>
+        <button type="button" id="retry-btn">다시 도전</button>
+      </div>
+    </div>
+
+    <div id="start-screen">
+      <button type="button" id="start-btn">게임 시작</button>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    >
+    <title>{% block title %}왕과 사는 남자: 충성도 테스트{% endblock %}</title>
+    <meta
+      name="description"
+      content="{% block meta_description %}영화의 여운을 현실 공동체 딜레마로 번역한 충성도 판별형 인터랙티브 팬사이트{% endblock %}"
+    >
+    <meta
+      property="og:title"
+      content="{% block og_title %}왕과 사는 남자: 충성도 테스트{% endblock %}"
+    >
+    <meta
+      property="og:description"
+      content="{% block og_description %}당신은 공동체에서 끝까지 남는 사람인가요?{% endblock %}"
+    >
+    <meta
+      property="og:image"
+      content="{% block og_image %}{{ request.url_for('images', path='포스터.png') }}{% endblock %}"
+    >
+    <meta name="theme-color" content="#0d1324">
+    <link
+      rel="stylesheet"
+      href="{{ request.url_for('static', path='css/style.css') }}"
+    >
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body class="{% block body_class %}{% endblock %}">
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="container site-header__inner">
+          <a class="site-logo" href="/">왕과 사는 남자</a>
+          <nav class="site-nav">
+            <a href="/">홈</a>
+            <a href="/test">테스트</a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="site-main">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="site-footer">
+        <a class="site-footer__link" href="https://www.instagram.com/mun_dap?igsh=aHRqaTBoYTFwZTRp" target="_blank" rel="noopener noreferrer">Mundap</a>
+      </footer>
+    </div>
+
+    <script src="{{ request.url_for('static', path='js/share.js') }}"></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>
