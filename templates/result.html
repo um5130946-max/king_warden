@@ -24,31 +24,31 @@
         {% if session.result_type == "관계형 보호자" %}
           <img
             class="result-character-image"
-            src="{{ request.url_for('images', path='엄흥도.png') }}"
+            src="/images/엄흥도.png"
             alt="엄흥도"
           >
         {% elif session.result_type == "조용한 동행자" %}
           <img
             class="result-character-image"
-            src="{{ request.url_for('images', path='매화.png') }}"
+            src="/images/매화.png"
             alt="매화"
           >
         {% elif session.result_type == "행동하는 이상가" %}
           <img
             class="result-character-image"
-            src="{{ request.url_for('images', path='금성대군.png') }}"
+            src="/images/금성대군.png"
             alt="금성대군"
           >
         {% elif session.result_type == "권력형 전략가" %}
           <img
             class="result-character-image"
-            src="{{ request.url_for('images', path='한명회.png') }}"
+            src="/images/한명회.png"
             alt="한명회"
           >
         {% else %}
           <img
             class="result-character-image"
-            src="{{ request.url_for('images', path='단종.png') }}"
+            src="/images/단종.png"
             alt="단종"
           >
         {% endif %}
@@ -166,5 +166,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ request.url_for('static', path='js/result.js') }}"></script>
+<script src="/static/js/result.js"></script>
 {% endblock %}

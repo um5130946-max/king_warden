@@ -21,12 +21,12 @@
     >
     <meta
       property="og:image"
-      content="{% block og_image %}{{ request.url_for('images', path='포스터.png') }}{% endblock %}"
+      content="{% block og_image %}/images/포스터.png{% endblock %}"
     >
     <meta name="theme-color" content="#0d1324">
     <link
       rel="stylesheet"
-      href="{{ request.url_for('static', path='css/style.css') }}"
+      href="/static/css/style.css"
     >
     {% block extra_head %}{% endblock %}
   </head>
@@ -51,7 +51,7 @@
       </footer>
     </div>
 
-    <script src="{{ request.url_for('static', path='js/share.js') }}"></script>
+    <script src="/static/js/share.js"></script>
     {% block scripts %}{% endblock %}
   </body>
 </html>
