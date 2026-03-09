@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const shareSentence =
     resultShareCopy?.textContent?.trim() ||
     `나는 왕과 사는 남자 세계관에서 '${resultType}' 유형입니다.`;
-  const shareText = [`${shareSentence}`, `충성도 점수 ${totalScore}점`, meta?.line || "", resultUrl]
+  const shareText = [`${shareSentence}`, `충성도 점수 ${totalScore}점`, meta?.line || ""]
     .filter(Boolean)
     .join("\n");
 
