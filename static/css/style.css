@@ -124,6 +124,13 @@ button {
   color: var(--gold-strong);
 }
 
+.adfit-banner-pc {
+  width: 728px;
+  height: 90px;
+  margin: 0 auto 20px;
+  overflow: hidden;
+}
+
 .section {
   padding: 64px 0;
 }
@@ -867,6 +874,10 @@ canvas {
   .canvas-wrap--wide {
     max-width: 100%;
   }
+
+ .adfit-banner-pc {
+ display: none;
+ }
 }
 
 @media (max-width: 640px) {
